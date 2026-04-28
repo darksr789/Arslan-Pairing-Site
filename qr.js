@@ -1,68 +1,63 @@
-const PastebinAPI = require('pastebin-js'),
-pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL')
-const {makeid} = require('./id');
-const QRCode = require('qrcode');
+const PastebinAPI = require('pastebin-js');
+const pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
+const { makeid } = require('./id');
 const express = require('express');
-const path = require('path');
 const fs = require('fs');
-let router = express.Router()
-const pino = require("pino");
+const QRCode = require('qrcode'); 
+let router = express.Router();
+const pino = require('pino');
 const {
-	default: DARK_SURYA,
-	useMultiFileAuthState,
-	jidNormalizedUser,
-	Browsers,
-	delay,
-	makeInMemoryStore,
-} = require("@whiskeysockets/baileys");
+    default: DARK_SURYA,
+    useMultiFileAuthState,
+    delay,
+    makeCacheableSignalKeyStore,
+    Browsers
+} = require('@whiskeysockets/baileys');
 
 function removeFile(FilePath) {
-	if (!fs.existsSync(FilePath)) return false;
-	fs.rmSync(FilePath, {
-		recursive: true,
-		force: true
-	})
-};
-const {
-	readFile
-} = require("node:fs/promises")
-router.get('/', async (req, res) => {
-	const id = makeid();
-	async function SURYA_X_QR_CODE() {
-		const {
-			state,
-			saveCreds
-		} = await useMultiFileAuthState('./temp/' + id)
-		try {
-			let Qr_Code_By_DARK_SURYA = Arslan_Tech({
-				auth: state,
-				printQRInTerminal: false,
-				logger: pino({
-					level: "silent"
-				}),
-				browser: Browsers.macOS("Desktop"),
-			});
+    if (!fs.existsSync(FilePath)) return false;
+    fs.rmSync(FilePath, { recursive: true, force: true });
+}
 
-			Qr_Code_By_DARK_SURYA.ev.on('creds.update', saveCreds)
-			Qr_Code_By_DARK_SURYA.ev.on("connection.update", async (s) => {
-				const {
-					connection,
-					lastDisconnect,
-					qr
-				} = s;
-				if (qr) await res.end(await QRCode.toBuffer(qr));
-				if (connection == "open") {
-					await delay(5000);
-					let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
-					await delay(800);
-				   let b64data = Buffer.from(data).toString('base64');
-				   let session = await Qr_Code_By_DARK_SURYA.sendMessage(Qr_Code_By_DARK_SURYA.user.id, { text: 'SURYA-X~' + b64data });
-	
-				   let SURYA_X_TEXT = `
+router.get('/', async (req, res) => {
+    const id = makeid();
+    
+    async function SURYA_X_QR_CODE() {
+        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+        try {
+            let Qr_Code_By_DARK_SURYA = DARK_SURYA({
+                auth: {
+                    creds: state.creds,
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
+                },
+                printQRInTerminal: false,
+                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
+                browser: Browsers.macOS('Chrome')
+            });
+
+            Qr_Code_By_DARK_SURYA.ev.on('creds.update', saveCreds);
+            Qr_Code_By_DARK_SURYA.ev.on('connection.update', async (s) => {
+                const { connection, lastDisconnect, qr } = s;
+
+                if (qr) {
+                    if (!res.headersSent) {
+                        let qr_buffer = await QRCode.toBuffer(qr);
+                        res.type('png');
+                        res.send(qr_buffer);
+                    }
+                }
+
+                if (connection === 'open') {
+                    await delay(5000);
+                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
+                    let b64data = Buffer.from(data).toString('base64');
+                    let session = await Qr_Code_By_DARK_SURYA.sendMessage(Qr_Code_By_DARK_SURYA.user.id, { text: 'SURYA-X~' + b64data });
+
+                    let SURYA_X_TEXT = `
 ╔════════════════════◇
 ║『 SESSION CONNECTED』
-║ ✨SURYA-X🔷
-║ ✨SURYAX OFFICIAL🔷
+║ ✨ SURYA-X 🔷
+║ ✨ SURYAX OFFICIAL🔷
 ╚════════════════════╝
 
 
@@ -71,7 +66,7 @@ router.get('/', async (req, res) => {
 ╔════════════════════◇
 ║『 YOU'VE CHOSEN SURYA-X 』
 ║ -Set the session ID in Heroku:
-║ - SESSION_ID: 
+║ - SESSION_ID: SURYA-X~${b64data}
 ╚════════════════════╝
 ╔════════════════════◇
 ║ 『••• _V𝗶𝘀𝗶𝘁 𝗙𝗼𝗿_H𝗲𝗹𝗽 •••』
@@ -83,35 +78,33 @@ router.get('/', async (req, res) => {
 ║❍ 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦: _https://www.instagram.com/
 ║ ☬ ☬ ☬ ☬
 ╚═════════════════════╝
-𒂀 Enjoy SURYA-X 
+𒂀 Enjoy SURYA-X
 
 
 ---
 
 Don't Forget To Give Star⭐ To My Repo
 ______________________________`;
-	 await Qr_Code_By_DARK_SURYA.sendMessage(Qr_Code_By_DARK_SURYA.user.id,{text:SURYA_X_TEXT},{quoted:session})
 
+                    await Qr_Code_By_DARK_SURYA.sendMessage(Qr_Code_By_DARK_SURYA.user.id, { text: SURYA_X_TEXT }, { quoted: session });
 
-
-					await delay(100);
-					await Qr_Code_By_DARK_SURYA.ws.close();
-					return await removeFile("temp/" + id);
-				} else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
-					await delay(10000);
-					SURYA_X_QR_CODE();
-				}
-			});
-		} catch (err) {
-			if (!res.headersSent) {
-				await res.json({
-					code: "Service is Currently Unavailable"
-				});
-			}
-			console.log(err);
-			await removeFile("temp/" + id);
-		}
-	}
-	return await SURYA_X_QR_CODE()
+                    await delay(100);
+                    await Qr_Code_By_DARK_SURYA.ws.close();
+                    return removeFile('./temp/' + id);
+                } else if (connection === 'close' && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
+                    await delay(10000);
+                    SURYA_X_QR_CODE();
+                }
+            });
+        } catch (err) {
+            removeFile('./temp/' + id);
+            if (!res.headersSent) {
+                await res.send({ code: 'Service Currently Unavailable' });
+            }
+        }
+    }
+    
+    return await SURYA_X_QR_CODE();
 });
-module.exports = router
+
+module.exports = router;
