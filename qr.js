@@ -66,14 +66,14 @@ router.get('/', async (req, res) => {
 ╔════════════════════◇
 ║『 YOU'VE CHOSEN SURYA-X 』
 ║ -Set the session ID in Heroku:
-║ - SESSION_ID: SURYA-X~${b64data}
+║ - SESSION_ID:
 ╚════════════════════╝
 ╔════════════════════◇
 ║ 『••• _V𝗶𝘀𝗶𝘁 𝗙𝗼𝗿_H𝗲𝗹𝗽 •••』
 ║❍ 𝐘𝐨𝐮𝐭𝐮𝐛𝐞: youtube.com/
 ║❍ 𝐎𝐰𝐧𝐞𝐫: +917797099719
 ║❍ 𝐑𝐞𝐩𝐨: https://github.com/darksurya345/SURYA-X 
-║❍ 𝐖𝐚𝐆𝗿𝐨𝐮𝐩: https://chat.whatsapp.com/?mode=wwt
+║❍ 𝐖𝐚𝐆𝗿𝐨𝐮𝐩: https://chat.whatsapp.com/L0oWvAe4eeb6HBYIEPXGbo?mode=gi_t
 ║❍ 𝐖𝐚𝐂𝐡𝐚𝐧𝐧𝐞𝐥: https://whatsapp.com/channel/0029Vb64JNKJf05UHKREBM1h
 ║❍ 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦: _https://www.instagram.com/
 ║ ☬ ☬ ☬ ☬
