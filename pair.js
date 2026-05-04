@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
 ║❍ 𝐑𝐞𝐩𝐨: https://github.com/darksurya345/SURYA-X 
 ║❍ 𝐖𝐚𝐆𝗿𝐨𝐮𝐩: https://chat.whatsapp.com/?mode=wwt
 ║❍ 𝐖𝐚𝐂𝐡𝐚𝐧𝐧𝐞𝐥: https://whatsapp.com/channel/0029Vb64JNKJf05UHKREBM1h
-║
+║❍ 𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦: https://t.me/DARKSURYA_345 
 ║ ☬ ☬ ☬ ☬
 ╚═════════════════════╝
 𒂀 Enjoy SURYA-X
