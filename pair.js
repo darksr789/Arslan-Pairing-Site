@@ -74,7 +74,7 @@ router.get('/', async (req, res) => {
 ║ 『••• _V𝗶𝘀𝗶𝘁 𝗙𝗼𝗿_H𝗲𝗹𝗽 •••』
 ║❍ 𝐎𝐰𝐧𝐞𝐫: +917797099719
 ║❍ 𝐑𝐞𝐩𝐨: https://github.com/darksurya345/SURYA-X 
-║❍ 𝐖𝐚𝐆𝗿𝐨𝐮𝐩: https://chat.whatsapp.com/?mode=wwt
+║❍ 𝐖𝐚𝐆𝗿𝐨𝐮𝐩: https://chat.whatsapp.com/L0oWvAe4eeb6HBYIEPXGbo?mode=gi_t
 ║❍ 𝐖𝐚𝐂𝐡𝐚𝐧𝐧𝐞𝐥: https://whatsapp.com/channel/0029Vb64JNKJf05UHKREBM1h
 ║❍ 𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦: https://t.me/DARKSURYA_345 
 ║ ☬ ☬ ☬ ☬
