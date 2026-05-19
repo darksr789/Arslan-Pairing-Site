@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SURYA-X | QR Pairing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold2: #FFA500;
+      --bg: #050508;
+      --surface: #0d0d14;
+      --surface2: #13131e;
+      --border: #1e1e2e;
+      --text: #e8e8ff;
+      --muted: #6060a0;
+      --error: #ff4466;
+      --success: #00ffaa;
+      --cyan: #00c8ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,200,255,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,100,0,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,215,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,215,0,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 24px;
+      padding: 44px 36px 36px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      box-shadow:
+        0 0 0 1px rgba(255,215,0,0.05),
+        0 0 60px rgba(0,200,255,0.05),
+        0 32px 64px rgba(0,0,0,0.6);
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 2px;
+    }
+
+    /* ── Logo ── */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #FFD700, #FF8C00);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px rgba(255,165,0,0.35);
+      font-size: 26px; flex-shrink: 0;
+    }
+
+    .logo-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 22px; font-weight: 900; letter-spacing: 3px;
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 11px; font-weight: 500; color: var(--muted);
+      letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+      text-transform: uppercase;
+    }
+    .back-btn:hover { color: var(--gold); }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px; font-weight: 700;
+      color: var(--text); letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px; color: var(--muted);
+      line-height: 1.6; font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    /* ── Button ── */
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00c8ff, #0080ff);
+      color: #fff;
+      border: none; border-radius: 12px;
+      padding: 16px;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 0 24px rgba(0,200,255,0.2);
+    }
+
+    .btn:hover { opacity: 0.9; box-shadow: 0 0 36px rgba(0,200,255,0.4); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+
+    /* ── QR Result area ── */
+    #qrResult { margin-top: 24px; }
+
+    /* ── QR Box ── */
+    .qr-box {
+      background: var(--surface2);
+      border: 1px solid rgba(0,200,255,0.2);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease forwards;
+    }
+
+    .qr-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top center, rgba(0,200,255,0.05), transparent 60%);
+      pointer-events: none;
+    }
+
+    .qr-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 20px;
+    }
+
+    .qr-frame {
+      display: inline-block;
+      padding: 14px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0,200,255,0.2);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .qr-frame canvas, .qr-frame img {
+      display: block;
+      width: 200px; height: 200px;
+      border-radius: 4px;
+    }
+
+    .qr-corner {
+      position: absolute;
+      width: 18px; height: 18px;
+      border-color: var(--cyan);
+      border-style: solid;
+    }
+    .qr-corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 5px 0 0 0; }
+    .qr-corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 5px 0 0; }
+    .qr-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 5px; }
+    .qr-corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 5px 0; }
+
+    @keyframes qrPulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(0,200,255,0.2); }
+      50%       { box-shadow: 0 0 60px rgba(0,200,255,0.5); }
+    }
+    .qr-frame.live { animation: qrPulse 2s ease-in-out infinite; }
+
+    .qr-countdown {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 1.5px; margin-bottom: 8px;
+    }
+    .qr-countdown span { color: var(--cyan); font-weight: 700; }
+
+    .session-id-display {
+      font-family: 'Orbitron', monospace;
+      font-size: 9px; color: var(--muted);
+      letter-spacing: 1px; margin-bottom: 20px;
+      word-break: break-all;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin-bottom: 18px;
+    }
+
+    /* Steps */
+    .qr-steps p {
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 8px;
+      display: flex; gap: 10px; align-items: flex-start;
+      line-height: 1.5; text-align: left; font-weight: 500;
+    }
+
+    .step-num {
+      background: linear-gradient(135deg, #00c8ff, #0080ff);
+      color: #fff; font-weight: 700; font-size: 10px;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* ── Connected card ── */
+    .info-card {
+      margin-top: 16px;
+      background: var(--surface2);
+      border: 1px solid rgba(0,255,170,0.2);
+      border-radius: 16px; overflow: hidden;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .info-card-header {
+      background: linear-gradient(90deg, rgba(0,255,170,0.1), rgba(0,255,170,0.03));
+      border-bottom: 1px solid rgba(0,255,170,0.15);
+      padding: 13px 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .connected-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .info-card-header span {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; color: var(--success);
+      text-transform: uppercase;
+    }
+
+    .info-card-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    .info-row { display: flex; align-items: center; gap: 14px; }
+
+    .info-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+      background: var(--surface); border: 1px solid var(--border);
+    }
+
+    .info-title {
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 3px;
+    }
+
+    .info-value { font-size: 15px; color: var(--text); font-weight: 700; }
+
+    .info-link {
+      color: var(--gold); text-decoration: none;
+      font-size: 13px; font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .info-link:hover { opacity: 0.75; }
+
+    .coming-soon { font-size: 12px; color: var(--muted); font-style: italic; }
+
+    /* ── Error ── */
+    .error-box {
+      background: rgba(255,68,102,0.07);
+      border: 1px solid rgba(255,68,102,0.25);
+      border-radius: 12px; padding: 14px 18px;
+      color: var(--error); font-size: 13px;
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 600; animation: fadeUp 0.3s ease forwards;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+
+    /* ── Footer ── */
+    .footer-brand {
+      margin-top: 28px;
+      text-align: center;
+      padding-top: 18px;
+    }
+
+    .footer-brand::before {
+      content: '';
+      display: block; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent);
+      margin-bottom: 16px;
+    }
+
+    .footer-year {
+      font-family: 'Orbitron', monospace;
+      font-size: 9px; letter-spacing: 3px;
+      color: var(--muted); margin-bottom: 6px;
+    }
+
+    .footer-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 17px; font-weight: 900; letter-spacing: 4px;
+      background: linear-gradient(90deg, #FFD700 0%, #FF8C00 50%, #FFD700 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .footer-by {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 2.5px; text-transform: uppercase;
+      margin-top: 5px; font-weight: 600;
+    }
+
+    .footer-by span {
+      color: var(--gold2);
+      font-family: 'Orbitron', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    }
+
+    .footer-dots {
+      display: flex; justify-content: center;
+      gap: 5px; margin-top: 10px;
+    }
+
+    .footer-dots i {
+      display: inline-block;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--gold); opacity: 0.4;
+      animation: dotBlink 1.5s ease-in-out infinite;
+    }
+    .footer-dots i:nth-child(2) { animation-delay: 0.3s; }
+    .footer-dots i:nth-child(3) { animation-delay: 0.6s; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes dotBlink {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50%       { opacity: 1;    transform: scale(1.5); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-title">SURYA-X</div>
+      <div class="logo-sub">WhatsApp Bot System</div>
+    </div>
+  </div>
+
+  <!-- Back -->
+  <a class="back-btn" href="main.html">← Back</a>
+
+  <h1>QR CODE PAIRING</h1>
+  <p class="subtitle">Scan the QR code with your WhatsApp camera to instantly link your device — no phone number needed.</p>
+
+  <button class="btn" id="qrBtn" onclick="requestQR()">📷 GENERATE QR CODE</button>
+
+  <div id="qrResult"></div>
+
+  <!-- Footer -->
+  <div class="footer-brand">
+    <div class="footer-year">© 2026</div>
+    <div class="footer-name">SURYA-X</div>
+    <div class="footer-by">BY &nbsp;<span>DARK SURYA</span></div>
+    <div class="footer-dots"><i></i><i></i><i></i></div>
+  </div>
+
+</div>
+
+<!-- QRCode.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+  // ── Config ─────────────────────────────────
+  const OWNER_NAME = "DARK SURYA";
+  const OWNER_NUMBER = "";   // e.g. "8801XXXXXXXXX"
+  const BOT_REPO   = "";     // e.g. "https://github.com/yourname/surya-x"
+  const WA_CHANNEL = "";     // e.g. "https://whatsapp.com/channel/xxxx"
+  // ───────────────────────────────────────────
+
+  let qrCountdownTimer = null;
+  let qrPollInterval   = null;
+
+  async function requestQR() {
+    const btn    = document.getElementById('qrBtn');
+    const result = document.getElementById('qrResult');
+
+    clearInterval(qrCountdownTimer);
+    clearInterval(qrPollInterval);
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>GENERATING QR...';
+    result.innerHTML = '';
+
+    try {
+      // /qr returns raw PNG image directly
+      const res = await fetch('/qr');
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const blob = await res.blob();
+      const imgUrl = URL.createObjectURL(blob);
+      showQRImage(imgUrl, null);
+    } catch (e) {
+      showError('Connection error. Could not fetch QR code.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📷 GENERATE QR CODE';
+    }
+  }
+
+  function showQR(qrData, sessionId) {
+    const result = document.getElementById('qrResult');
+    result.innerHTML = buildQRBox(sessionId);
+
+    new QRCode(document.getElementById('qrCanvas'), {
+      text: qrData,
+      width: 200, height: 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    startCountdown(60);
+    if (sessionId) pollStatus(sessionId);
+  }
+
+  function showQRImage(imgSrc, sessionId) {
+    const result = document.getElementById('qrResult');
+    result.innerHTML = buildQRBox(sessionId, imgSrc);
+    startCountdown(60);
+    if (sessionId) pollStatus(sessionId);
+  }
+
+  function buildQRBox(sessionId, base64img) {
+    return `
+      <div class="qr-box">
+        <div class="qr-label">◆ Scan with WhatsApp ◆</div>
+        <div class="qr-frame live" id="qrFrame">
+          <div class="qr-corner tl"></div>
+          <div class="qr-corner tr"></div>
+          <div class="qr-corner bl"></div>
+          <div class="qr-corner br"></div>
+          ${base64img
+            ? `<img src="${base64img}" alt="QR Code" style="width:200px;height:200px;border-radius:4px;"/>`
+            : `<div id="qrCanvas"></div>`}
+        </div>
+        <div class="qr-countdown" id="qrCountdown">Expires in <span id="qrSec">60</span>s</div>
+        ${sessionId ? `<div class="session-id-display">SESSION · ${sessionId}</div>` : ''}
+        <div class="divider"></div>
+        <div class="qr-steps">
+          <p><span class="step-num">1</span>Open WhatsApp on your phone</p>
+          <p><span class="step-num">2</span>Go to Settings → Linked Devices</p>
+          <p><span class="step-num">3</span>Tap "Link a Device"</p>
+          <p><span class="step-num">4</span>Point your camera at the QR code</p>
+        </div>
+      </div>
+      <div id="infoCard"></div>
+    `;
+  }
+
+  function startCountdown(seconds) {
+    let remaining = seconds;
+    clearInterval(qrCountdownTimer);
+    qrCountdownTimer = setInterval(() => {
+      remaining--;
+      const secEl = document.getElementById('qrSec');
+      if (secEl) secEl.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(qrCountdownTimer);
+        const cd = document.getElementById('qrCountdown');
+        if (cd) cd.innerHTML = '⚠ QR Expired — <a href="#" onclick="requestQR();return false;" style="color:var(--cyan);">Refresh</a>';
+        const frame = document.getElementById('qrFrame');
+        if (frame) { frame.style.opacity = '0.3'; frame.classList.remove('live'); }
+      }
+    }, 1000);
+  }
+
+  function pollStatus(sessionId) {
+    clearInterval(qrPollInterval);
+    qrPollInterval = setInterval(async () => {
+      try {
+        const res  = await fetch(`/api/status/${sessionId}`);
+        const data = await res.json();
+        if (data.status === 'connected') {
+          clearInterval(qrPollInterval);
+          clearInterval(qrCountdownTimer);
+          showInfoCard();
+        }
+      } catch {}
+    }, 3000);
+    setTimeout(() => clearInterval(qrPollInterval), 180000);
+  }
+
+  function showInfoCard() {
+    const card = document.getElementById('infoCard');
+    if (!card) return;
+    card.className = 'info-card';
+    card.innerHTML = `
+      <div class="info-card-header">
+        <div class="connected-dot"></div>
+        <span>Device Connected!</span>
+      </div>
+      <div class="info-card-body">
+        <div class="info-row">
+          <div class="info-icon">👑</div>
+          <div>
+            <div class="info-title">Owner</div>
+            <div class="info-value">${OWNER_NAME}${OWNER_NUMBER ? ' · ' + OWNER_NUMBER : ''}</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon">🤖</div>
+          <div>
+            <div class="info-title">Bot Repository</div>
+            ${BOT_REPO
+              ? `<a class="info-link" href="${BOT_REPO}" target="_blank">🔗 GitHub Repo →</a>`
+              : `<span class="coming-soon">Coming soon...</span>`}
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-icon">📢</div>
+          <div>
+            <div class="info-title">WhatsApp Channel</div>
+            ${WA_CHANNEL
+              ? `<a class="info-link" href="${WA_CHANNEL}" target="_blank">📲 Join Channel →</a>`
+              : `<span class="coming-soon">Coming soon...</span>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function showError(msg) {
+    document.getElementById('qrResult').innerHTML =
+      `<div class="error-box"><span>⚠</span><span>${msg}</span></div>`;
+  }
+</script>
+
+</body>
+</html>
